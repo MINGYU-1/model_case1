@@ -36,8 +36,7 @@ class MultiDecoderCondVAE(nn.Module):
             nn.ReLU(),
             nn.Linear(h1,h2),
             nn.ReLU(),
-            nn.Linear(h2,x_dim),
-            nn.Softplus()
+            nn.Linear(h2,x_dim)
         )
 
     def reparameterize(self,mu,log_var):
