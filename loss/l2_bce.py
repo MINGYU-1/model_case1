@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-def l2_bce(binary_logit,x, mu, logvar,beta=1.0, gamma=1.0):
+def l2_bce(binary_logit,x, mu, logvar,beta=1.0, gamma=0.1):
 
 
     # 1. Classification Loss (BCE): 금속 존재 여부 (이미지의 probability 부분)

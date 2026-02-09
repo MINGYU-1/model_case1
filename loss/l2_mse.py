@@ -1,7 +1,7 @@
 import torch
 import torch.nn.functional as F
 def l2_mse(x_hat, x, mu, logvar, 
-                       alpha=1.0,gamma=1.0):
+                       alpha=1.0,gamma=0.1):
 
 
     mse_loss = F.mse_loss(x_hat, x, reduction='sum')
