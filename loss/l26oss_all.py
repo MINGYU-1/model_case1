@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-def integrated_loss_fn(binary_logit, x_hat, x, mu, logvar, alpha=1.0,beta=1.0, gamma=1.0):
+def integrated_loss_fn(binary_logit, x_hat, x, mu, logvar, alpha=1.0,beta=1.0, gamma=0.1):
     
     batch_size = x.shape[0]
 

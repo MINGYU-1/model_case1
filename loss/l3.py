@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-def loss3(binary_logit, x_hat, x,x2, mu, logvar,mu2,logvar2, a=1.0,b=1.0, c=1.0, d=1.0):
+def loss3(binary_logit, x_hat, x,x2, mu, logvar,mu2,logvar2, a=1.0,b=1.0, c=0.1, d=0.1):
     
     batch_size = x.shape[0]
 
