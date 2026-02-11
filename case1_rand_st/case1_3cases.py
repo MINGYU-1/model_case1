@@ -34,7 +34,7 @@ for i in random_seeds:
     
     # 1. 데이터 로드 및 전처리
     x_path = os.path.join(base_path, 'data', 'metal.npy')
-    c_path = os.path.join(base_path, 'data', 'pre_re_fin.npy')
+    c_path = os.path.join(base_path, 'data', 'pre_re_fin_expand.npy')
     if not os.path.exists(x_path):
         print(f"❌ 에러: {x_path} 파일을 찾을 수 없습니다! 폴더 구조를 확인하세요.")
     else:

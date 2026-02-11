@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import pandas as pd
-from vae_earlystopping import EarlyStopping
 import sys
 script_dir = os.path.dirname(os.path.abspath(__file__)) 
 # Get the parent directory
@@ -11,6 +10,7 @@ if parent_dir not in sys.path:
 os.chdir(parent_dir)
 print(f"Current Working Directory: {os.getcwd()}")
 import torch
+from vae_earlystopping import EarlyStopping
 import torch.optim as optim
 from torch.utils.data import TensorDataset, DataLoader
 from sklearn.preprocessing import StandardScaler
@@ -37,7 +37,7 @@ results = {
 }
 for i in np.random.randint(1,100,size = 20):
     x_data = np.load('./data/metal.npy')
-    c_data = np.load('./data/pre_re_fin.npy')
+    c_data = np.load('./data/pre_re_fin_expand.npy')
     
     x_train,x_test,c_train,c_test = train_test_split(x_data,c_data, random_state = i,test_size = 0.4)
     x_val,x_test,c_val,c_test = train_test_split(x_test,c_test,random_state = i, test_size = 0.5)
@@ -66,7 +66,7 @@ for i in np.random.randint(1,100,size = 20):
     x2_dim= x2_sample.shape[1]
     c_dim = c_sample.shape[1]
 
-    model = Model2(x_dim,x2_dim,c_dim, z_dim=8,z2_dim = 8).to(device)
+    model = Model3(x_dim,x2_dim,c_dim, z_dim=8,z2_dim = 8).to(device)
     early_stopping = EarlyStopping(patience=40,min_delta = 1e-9)
     optimizer = optim.Adam(model.parameters(),lr = 1e-3, weight_decay=1e-5)
     epochs = 800
@@ -78,7 +78,7 @@ for i in np.random.randint(1,100,size = 20):
             x,x2,c = x.to(device),x2.to(device),c.to(device)
             optimizer.zero_grad()
             bce_logit,x_hat, mu, logvar,mu2,logvar2 = model(x,x2,c)
-            loss_dict = loss2(bce_logit,x_hat,x,x2,mu,logvar,mu2,logvar2)
+            loss_dict = loss3(bce_logit,x_hat,x,x2,mu,logvar,mu2,logvar2)
             loss_dict['loss'].backward()
             optimizer.step()
             t_loss +=loss_dict['loss'].item()
@@ -88,7 +88,7 @@ for i in np.random.randint(1,100,size = 20):
             for v_x,v2_x, v_c in val_loader:
                 v_x,v2_x,v_c = v_x.to(device),v2_x.to(device),v_c.to(device)
                 v_bce_logit,v_x_hat, v_mu, v_logvar,v2_mu,v2_logvar = model(v_x,v2_x,v_c)
-                loss_dict = loss2(v_bce_logit,v_x_hat, v_x,v2_x, v_mu,v_logvar,v2_mu,v2_logvar)
+                loss_dict = loss3(v_bce_logit,v_x_hat, v_x,v2_x, v_mu,v_logvar,v2_mu,v2_logvar)
                 v_loss += loss_dict['loss'].item()
         avg_train_loss = t_loss/len(train_loader)
         avg_val_loss = v_loss/len(val_loader)
