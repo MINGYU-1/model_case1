@@ -34,7 +34,7 @@ for i in random_seeds:
     
     # 1. 데이터 로드 및 전처리
     x_path = os.path.join(base_path, 'data', 'metal.npy')
-    c_path = os.path.join(base_path, 'data', 'pre_re_without_ghsv.npy')
+    c_path = os.path.join(base_path, 'data', 'pre_re_change_temp_logconst.npy')
     if not os.path.exists(x_path):
         print(f"❌ 에러: {x_path} 파일을 찾을 수 없습니다! 폴더 구조를 확인하세요.")
     else:
@@ -156,7 +156,7 @@ for i in random_seeds:
     results["R2_SOFT_LABEL"].append(float(r2_soft))
 
 # JSON 저장
-save_path = "./results_case1_3cases.json"
+save_path = "./results_case1_logscale3cases.json"
 with open(save_path, "w", encoding="utf-8") as f:
     json.dump(results, f, ensure_ascii=False, indent=2)
 
