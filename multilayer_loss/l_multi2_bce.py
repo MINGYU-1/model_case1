@@ -1,6 +1,6 @@
 import torch
 import torch.nn.functional as F
-def l2_bce(binary_logit,x, mu,mu2, logvar,logvar2, beta=1.0, gamma=0.1):
+def l2_bce(binary_logit,x, mu,mu2, logvar,logvar2, beta=1.0, gamma1=0.1,gamma2=0.05 ):
 
 
     # 1. Classification Loss (BCE): 금속 존재 여부 (이미지의 probability 부분)
@@ -20,7 +20,7 @@ def l2_bce(binary_logit,x, mu,mu2, logvar,logvar2, beta=1.0, gamma=0.1):
     batch_size = x.shape[0]
     # 최종 손실 합산 (가중치 조절)
     # 각 loss를 batch_size로 나누어 평균 손실을 구함
-    total_loss = (beta * bce_loss + gamma * (kl_loss+kl2_loss))/batch_size
+    total_loss = (beta * bce_loss + gamma1 * kl_loss+ gamma2 * kl2_loss)/batch_size
 
     return {
         'loss': total_loss,
