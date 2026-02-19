@@ -1,6 +1,4 @@
 # model_case1
-![alt text](image.png)
-
 # 분류 및 연속모델 복합 구조 Conditional Variational AutoEncoder(cVAE)를 이용한 건식 개질 공정용 금속 촉매 생성 조성 최적화
 
 
