@@ -1,26 +1,39 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
+
+class ResidualBlock(nn.Module):
+    def __init__(self, dim):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(dim, dim),
+            nn.BatchNorm1d(dim),
+            nn.ReLU(),
+            nn.Linear(dim, dim),
+            nn.BatchNorm1d(dim)
+        )
+    def forward(self, x): return F.relu(x + self.net(x))
 
 class M3_Multi_MSE(nn.Module):
-    def __init__(self, x_dims, c_dim, z_dims=[16, 8, 4], h_dims=[128, 64]):
+    def __init__(self, x_dims, c_dim, z_dims=[64, 32, 16], h_dim=256):
         super().__init__()
         x1_dim, x2_dim, x3_dim = x_dims
-        z1_dim, z2_dim, z3_dim = z_dims
-        h2, h1 = h_dims
         self.z_dims = z_dims
         
-        # Encoders
-        self.enc1 = nn.Sequential(nn.Linear(x1_dim + c_dim, h2), nn.ReLU(), nn.Linear(h2, h1), nn.ReLU())
-        self.mu1, self.lv1 = nn.Linear(h1, z1_dim), nn.Linear(h1, z1_dim)
-        self.enc2 = nn.Sequential(nn.Linear(x2_dim + z1_dim, h2), nn.ReLU(), nn.Linear(h2, h1), nn.ReLU())
-        self.mu2, self.lv2 = nn.Linear(h1, z2_dim), nn.Linear(h1, z2_dim)
-        self.enc3 = nn.Sequential(nn.Linear(x3_dim + z2_dim, h2), nn.ReLU(), nn.Linear(h2, h1), nn.ReLU())
-        self.mu3, self.lv3 = nn.Linear(h1, z3_dim), nn.Linear(h1, z3_dim)
+        # Encoders: Residual & BatchNorm 적용으로 학습 안정성 및 정밀도 향상
+        self.enc1 = nn.Sequential(nn.Linear(x1_dim + c_dim, h_dim), ResidualBlock(h_dim))
+        self.mu1, self.lv1 = nn.Linear(h_dim, z_dims[0]), nn.Linear(h_dim, z_dims[0])
+        
+        self.enc2 = nn.Sequential(nn.Linear(x2_dim + z_dims[0], h_dim), ResidualBlock(h_dim))
+        self.mu2, self.lv2 = nn.Linear(h_dim, z_dims[1]), nn.Linear(h_dim, z_dims[1])
+        
+        self.enc3 = nn.Sequential(nn.Linear(x3_dim + z_dims[1], h_dim), ResidualBlock(h_dim))
+        self.mu3, self.lv3 = nn.Linear(h_dim, z_dims[2]), nn.Linear(h_dim, z_dims[2])
 
-        # Decoders (수치 Raw Value 출력)
-        self.dec1 = nn.Sequential(nn.Linear(z1_dim + c_dim, h1), nn.ReLU(), nn.Linear(h1, h2), nn.ReLU(), nn.Linear(h2, x1_dim))
-        self.dec2 = nn.Sequential(nn.Linear(z1_dim + z2_dim, h1), nn.ReLU(), nn.Linear(h1, h2), nn.ReLU(), nn.Linear(h2, x2_dim))
-        self.dec3 = nn.Sequential(nn.Linear(z2_dim + z3_dim, h1), nn.ReLU(), nn.Linear(h1, h2), nn.ReLU(), nn.Linear(h2, x3_dim))
+        # Decoders: Sigmoid 제약 추가로 예측값 폭주 방지
+        self.dec1 = nn.Sequential(nn.Linear(z_dims[0] + c_dim, h_dim), ResidualBlock(h_dim), nn.Linear(h_dim, x1_dim), nn.Sigmoid())
+        self.dec2 = nn.Sequential(nn.Linear(z_dims[1] + z_dims[0], h_dim), ResidualBlock(h_dim), nn.Linear(h_dim, x2_dim), nn.Sigmoid())
+        self.dec3 = nn.Sequential(nn.Linear(z_dims[2] + z_dims[1], h_dim), ResidualBlock(h_dim), nn.Linear(h_dim, x3_dim), nn.Sigmoid())
 
     def reparameterize(self, mu, lv):
         return mu + torch.randn_like(mu) * torch.exp(0.5 * lv)
@@ -38,9 +51,4 @@ class M3_Multi_MSE(nn.Module):
             z1 = torch.randn(batch_size, self.z_dims[0]).to(device)
             z2 = torch.randn(batch_size, self.z_dims[1]).to(device)
             z3 = torch.randn(batch_size, self.z_dims[2]).to(device)
-            o1 = self.dec1(torch.cat([z1, c], 1))
-            o2 = self.dec2(torch.cat([z1, z2], 1))
-            o3 = self.dec3(torch.cat([z2, z3], 1))
-            # 수치 튐 방지 및 물리적 범위 제한
-            o1, o2, o3 = torch.clamp(o1, 0, 1.2), torch.clamp(o2, 0, 1.2), torch.clamp(o3, 0, 1.2)
-        return [o1, o2, o3]
+            return [self.dec1(torch.cat([z1, c], 1)), self.dec2(torch.cat([z1, z2], 1)), self.dec3(torch.cat([z2, z3], 1))]
