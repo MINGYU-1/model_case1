@@ -7,6 +7,7 @@ class M3_Multi_MSE(nn.Module):
         x1_dim, x2_dim, x3_dim = x_dims
         z1_dim, z2_dim, z3_dim = z_dims
         h2, h1 = h_dims
+        self.z_dims = z_dims
         
         # Encoders
         self.enc1 = nn.Sequential(nn.Linear(x1_dim + c_dim, h2), nn.ReLU(), nn.Linear(h2, h1), nn.ReLU())
@@ -29,3 +30,17 @@ class M3_Multi_MSE(nn.Module):
         h2 = self.enc2(torch.cat([x2, z1], 1)); m2, v2 = self.mu2(h2), self.lv2(h2); z2 = self.reparameterize(m2, v2)
         h3 = self.enc3(torch.cat([x3, z2], 1)); m3, v3 = self.mu3(h3), self.lv3(h3); z3 = self.reparameterize(m3, v3)
         return [self.dec1(torch.cat([z1, c], 1)), self.dec2(torch.cat([z1, z2], 1)), self.dec3(torch.cat([z2, z3], 1))], [m1, m2, m3], [v1, v2, v3]
+
+    def generate(self, c, device):
+        self.eval()
+        batch_size = c.size(0)
+        with torch.no_grad():
+            z1 = torch.randn(batch_size, self.z_dims[0]).to(device)
+            z2 = torch.randn(batch_size, self.z_dims[1]).to(device)
+            z3 = torch.randn(batch_size, self.z_dims[2]).to(device)
+            o1 = self.dec1(torch.cat([z1, c], 1))
+            o2 = self.dec2(torch.cat([z1, z2], 1))
+            o3 = self.dec3(torch.cat([z2, z3], 1))
+            # 수치 튐 방지 및 물리적 범위 제한
+            o1, o2, o3 = torch.clamp(o1, 0, 1.2), torch.clamp(o2, 0, 1.2), torch.clamp(o3, 0, 1.2)
+        return [o1, o2, o3]
