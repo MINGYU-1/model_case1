@@ -35,6 +35,16 @@
 ##  모델의 최종 목표
 이 방식은 **"금속-지지체-전처리" 사이의 강력한 상관관계**를 모델 구조 자체에 이식함으로써, 블랙박스 형태의 AI가 아닌 **물리적 개연성을 가진 촉매 설계안**을 생성할 수 있다는 점에서 차별화됩니다.
 
+## 모델 loss 구하는 방식(KL Balancing)
+$$
+\mathcal{L}_{total} = \mathbb{E}{q(z|x)} [\log p(x|z)] - \beta \sum_{l=1}^{L} \gamma_l \mathbb{E}{q(z{<l}|x)} [KL(q(z_l|x, z_{<l}) \parallel p(z_l|z_{<l}))]
+$$
+1. Reconstruction Term ($\mathbb{E}_{q(z|x)} [\log p(x|z)]$): 생성된 촉매 데이터가 실제 실험 데이터와 얼마나 유사한지 측정하는 항입니다 (BCE/MSE).
+2. $\beta$ (KL Annealing Factor): 학습 초기에는 0에 가깝게 설정하여 모델이 재구성을 먼저 배우게 하고, 점진적으로 1까지 증가시켜 잠재 공간을 정규화합니다. (KL Annealing)
+3. $\gamma_l$ (KL Balancing Coefficient): 본 모델의 핵심 파라미터입니다.
+- $\gamma_1 > \gamma_2 > \gamma_3$ 순으로 설정하여 상위 계층(Metal)의 정보 보존을 우선시합니다.
+- 이를 통해 하위 계층($z_3$: 전처리)의 KL 항이 너무 강해져서 상위 계층의 정보를 무시하는 'Posterior Collapse' 현상을 방지합니다.
+4. $\sum_{l=1}^{L} \dots$ (Hierarchical Structure): 금속($z_1$), 지지체($z_2$), 전처리($z_3$)로 이어지는 계층적 의존 관계를 수학적으로 나타냅니다.
 ---
 ## Reference
 - https://arxiv.org/pdf/2007.03898
