@@ -13,8 +13,8 @@ base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.append(base_path)
 # 사용자 정의 모듈 경로 설정 유지
 from vae_earlystopping import EarlyStopping
-from model.m2_bce import BCEcVAE
-from model.m2_mse import MSEcVAE
+from model.case1_bce import BCEcVAE
+from model.case1_mse import MSEcVAE
 from loss.l2_bce import l2_bce
 from loss.l2_mse import l2_mse
 
