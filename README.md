@@ -34,7 +34,7 @@
 
 ##  모델의 최종 목표
 이 방식은 **"금속-지지체-전처리" 사이의 강력한 상관관계**를 모델 구조 자체에 이식함으로써, 블랙박스 형태의 AI가 아닌 **물리적 개연성을 가진 촉매 설계안**을 생성할 수 있다는 점에서 차별화됩니다.
-
+![alt text](image-1.png)
 ## 모델 loss 구하는 방식(KL Balancing)
 $$
 \mathcal{L}_{total} = \mathbb{E}{q(z|x)} [\log p(x|z)] - \sum_{l=1}^{L} \gamma_l \mathbb{E}{q(z{<l}|x)} [KL(q(z_l|x, z_{<l}) \parallel p(z_l|z_{<l}))]
