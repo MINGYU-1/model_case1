@@ -28,7 +28,7 @@
     *   **$R^2$ Score:** 수치적 재구성 정확도 측정
     *   **Catalyst Feasibility:** 생성된 레시피가 지지체 대비 금속 함량의 물리적 상한선 및 공학적 타당성을 만족하는지 검증 (Domain-specific validation)
 
-## 🛠 주요 파일 (Work-in-Progress)
+##  주요 파일 (Work-in-Progress)
 *   `MODEL_CASE1/multilayer_rand_st/18_multi.ipynb`: 계층별 개별 Loss(Multilayer Loss)를 계산하고 최적화하는 메인 학습 파이프라인.
 *   `MSEcVAE 클래스, BCEcVAE 클래스`: 계층적 잠재 공간과 다중 디코더가 통합된 커스텀 PyTorch 모델 객체.
 
