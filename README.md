@@ -29,11 +29,6 @@
     *   **$R^2$ Score:** 수치적 재구성 정확도 측정
     *   **Catalyst Feasibility:** 생성된 레시피가 지지체 대비 금속 함량의 물리적 상한선 및 공학적 타당성을 만족하는지 검증 (Domain-specific validation)
 
-##  주요 파일 
-*   `MODEL_CASE1/multilayer_rand_st/18_multi.ipynb`: 계층별 개별 Loss(Multilayer Loss)를 계산하고 최적화하는 메인 학습 파이프라인.
-*   `MSEcVAE 클래스, BCEcVAE 클래스`: 계층적 잠재 공간과 다중 디코더가 통합된 커스텀 PyTorch 모델 객체.
-
----
 
 ##  모델의 특장점
 이 방식은 **"금속-지지체-전처리" 사이의 강력한 상관관계**를 모델 구조 자체에 이식함으로써, 블랙박스 형태의 AI가 아닌 **물리적 개연성을 가진 촉매 설계안**을 생성할 수 있다는 점에서 차별화됩니다.
